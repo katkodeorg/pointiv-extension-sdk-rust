@@ -2,7 +2,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! pointiv-extension-sdk = "0.3"
+//! pointiv-extension-sdk = "0.4"
 //! extism-pdk = "1"
 //! ```
 //!
@@ -14,6 +14,12 @@
 //!     Ok(Json(Output::text(format!("Hello, {}!", input.text))))
 //! }
 //! ```
+//!
+//! Extensions can also render a tile widget beside the popup command bar.
+//! Declare a `"tiles"` block in `pointiv-extension.json` and export `render_tile`;
+//! see the [`tile`] module for the schema and builder API.
+
+pub mod tile;
 
 pub use extism_pdk::{host_fn, plugin_fn, FnResult, Json};
 pub use serde::{Deserialize, Serialize};
@@ -35,11 +41,10 @@ pub struct Input {
 ///
 /// ```rust,no_run
 /// # use pointiv_extension_sdk::Output;
-/// Output::text("result")
-/// Output::copy("value")
-/// Output::type_text("value")
-/// Output::error("oops")
-/// # ;
+/// Output::text("result");
+/// Output::copy("value");
+/// Output::type_text("value");
+/// Output::error("oops");
 /// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct Output {
@@ -373,8 +378,11 @@ pub mod google_gmail {
 }
 
 pub mod prelude {
+    pub use crate::tile::{
+        RowBuilder, TileAction, TileBadge, TileNode, TileRenderInput, TileTone, TileUi,
+    };
     pub use crate::{
-        ai, clipboard, google_calendar, google_gmail, http, log, storage,
+        ai, clipboard, google_calendar, google_gmail, http, log, storage, tile,
         HttpRequest, HttpResponse, Input, Output,
     };
     pub use extism_pdk::{plugin_fn, FnResult, Json};

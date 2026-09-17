@@ -11,7 +11,7 @@ Previously published as `pointiv-extension-api`. Use `pointiv-extension-sdk` for
 crate-type = ["cdylib"]
 
 [dependencies]
-pointiv-extension-sdk = "0.3"
+pointiv-extension-sdk = "0.4"
 extism-pdk = "1"
 ```
 
@@ -101,6 +101,29 @@ log::warn("slow response");
 log::error("failed");
 ```
 
+## Tiles
+
+Extensions can render a declarative tile widget beside the popup command bar. Declare a `"tiles"` block in `pointiv-extension.json` (requires `"runtime": "wasm"`), then export `render_tile`:
+
+```rust
+use pointiv_extension_sdk::prelude::*;
+
+#[plugin_fn]
+pub fn render_tile(Json(_input): Json<TileRenderInput>) -> FnResult<Json<TileUi>> {
+    let tile = TileUi::new("Todos")
+        .badge("2 open", TileTone::Warn)
+        .row(RowBuilder::new("Buy milk").action("Done", "todo done 1"))
+        .footer("Refresh", "todo list");
+    Ok(Json(tile))
+}
+```
+
+```json
+"tiles": { "height": 2, "zone": "right", "order": 1 }
+```
+
+The host calls `render_tile` when the popup opens and after a tile action runs, with a 3 second budget and storage-only host access. Action commands run through your normal `execute` function. Iterate with the playground in Pointiv Settings, Tiles: paste tile JSON for instant validation and preview, or live-render an installed extension's tile. Full schema, limits, and the component catalog are in TILES.md in the Pointiv repo.
+
 ## Manifest
 
 `pointiv-extension.json` at the repo root:
@@ -122,7 +145,7 @@ log::error("failed");
 
 ```toml
 [dependencies]
-pointiv-extension-sdk = "0.3"
+pointiv-extension-sdk = "0.4"
 ```
 
 ```rust
