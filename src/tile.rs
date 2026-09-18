@@ -53,11 +53,22 @@ pub enum TileTone {
 pub struct TileAction {
     pub label: String,
     pub command: String,
+    /// Placeholder text. When set, the host renders a text field next to the
+    /// button and dispatches `command` plus a space plus the typed text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub input: Option<String>,
 }
 
 impl TileAction {
     pub fn new(label: impl Into<String>, command: impl Into<String>) -> Self {
-        Self { label: label.into(), command: command.into() }
+        Self { label: label.into(), command: command.into(), input: None }
+    }
+
+    /// Show a text field next to the button. The host dispatches `command`
+    /// plus a space plus the typed text. Placeholder max 60 characters.
+    pub fn with_input(mut self, placeholder: impl Into<String>) -> Self {
+        self.input = Some(placeholder.into());
+        self
     }
 }
 
@@ -240,6 +251,18 @@ impl TileUi {
     /// than 3 footer actions.
     pub fn footer(mut self, label: impl Into<String>, command: impl Into<String>) -> Self {
         self.footer.push(TileAction::new(label, command));
+        self
+    }
+
+    /// Append a footer action with a text field. The host dispatches
+    /// `command` plus a space plus the typed text.
+    pub fn footer_input(
+        mut self,
+        label: impl Into<String>,
+        command: impl Into<String>,
+        placeholder: impl Into<String>,
+    ) -> Self {
+        self.footer.push(TileAction::new(label, command).with_input(placeholder));
         self
     }
 }
